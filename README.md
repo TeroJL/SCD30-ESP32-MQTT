@@ -68,7 +68,13 @@ SCD30-Wemos/
 
 # Laitteisto
 
-Projektin alkuperäinen laitteisto:
+Projektin laitteistona käytetään Wemos D1 R32 -ESP32-korttia ja Sensirion SCD30 -anturia.
+
+<p align="center">
+  <img src="images/scd30-wemos.jpg" alt="Wemos D1 R32 ja Sensirion SCD30" width="700">
+</p>
+
+### Projektin alkuperäinen laitteisto
 
 * **Wemos D1 R32 / ESP32**
 * **Sensirion SCD30**
