@@ -56,7 +56,9 @@ SCD30-Wemos/
 │   └── version-6.md
 │
 ├── images/
-│   └── scd30-wemos.jpg
+│   ├── scd30-wemos.jpg
+│   ├── scd30-sensor.jpg
+│   └── scd30-wemos-wiring.jpg
 │
 └── examples/
     │
@@ -804,6 +806,36 @@ K7#mP9xQ2$vL
 Salasana voitaisiin luoda ensimmäisellä käynnistyskerralla ESP32:n satunnaislukugeneraattorilla ja tallentaa Preferences-muistiin.
 
 Tällöin AP-salasanaa ei voisi päätellä laitteen MAC-osoitteesta.
+
+---
+
+# Kytkentä ja kuvat
+
+Alla olevissa kuvissa näkyy projektin käytännön toteutus.
+
+## SCD30-anturin liitännät
+
+<p align="center">
+  <img src="images/scd30-sensor.jpg"
+       alt="Sensirion SCD30 -anturin liitännät"
+       width="600">
+</p>
+
+<p align="center">
+  <em>Sensirion SCD30 ja sen liitännät.</em>
+</p>
+
+## Wemos D1 R32 ja SCD30
+
+<p align="center">
+  <img src="images/scd30-wemos-wiring.jpg"
+       alt="Wemos D1 R32 ja SCD30 kytkettynä"
+       width="700">
+</p>
+
+<p align="center">
+  <em>Wemos D1 R32 ja Sensirion SCD30 käytännön kytkennässä.</em>
+</p>
 
 ---
 
