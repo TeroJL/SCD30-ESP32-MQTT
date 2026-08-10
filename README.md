@@ -55,6 +55,9 @@ SCD30-Wemos/
 │   ├── version-5.md
 │   └── version-6.md
 │
+├── images/
+│   └── scd30-wemos.jpg
+│
 └── examples/
     │
     ├── SCD30_WLAN_MQTT_v5/
@@ -72,6 +75,10 @@ Projektin laitteistona käytetään Wemos D1 R32 -ESP32-korttia ja Sensirion SCD
 
 <p align="center">
   <img src="images/scd30-wemos.jpg" alt="Wemos D1 R32 ja Sensirion SCD30" width="700">
+</p>
+
+<p align="center">
+  <em>Projektin Wemos D1 R32 -ohjain ja Sensirion SCD30 -anturi.</em>
 </p>
 
 ### Projektin alkuperäinen laitteisto
