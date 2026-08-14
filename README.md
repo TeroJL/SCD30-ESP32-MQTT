@@ -1,4 +1,4 @@
-# SCD30-Wemos
+# # SCD30-ESP32-MQTT
 
 ESP32-pohjainen SCD30-mittausprojekti, jossa samaa Sensirion SCD30 -anturia käytetään kahdella eri mikrokontrollerialustalla:
 
