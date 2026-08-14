@@ -1,257 +1,312 @@
 # SCD30-Wemos
 
-ESP32 / Wemos D1 R32 -projekti Sensirion SCD30 -anturille.
+ESP32-pohjainen SCD30-mittausprojekti, jossa samaa Sensirion SCD30 -anturia käytetään kahdella eri mikrokontrollerialustalla:
 
-ESP32 lukee SCD30:lta: - CO₂-pitoisuuden - lämpötilan - suhteellisen
-kosteuden
+- **Wemos D1 R32 / ESP32**
+- **Seeed Studio XIAO ESP32-S3**
 
-Mittaustiedot julkaistaan MQTT-brokerille JSON-muodossa. Laitteessa on
-myös WiFi-asetusportaali.
+Molemmat versiot lukevat SCD30-anturilta:
+
+- CO₂-pitoisuuden
+- lämpötilan
+- suhteellisen kosteuden
+
+Mittaustiedot julkaistaan MQTT-brokerille JSON-muodossa.
+
+Projektissa on lisäksi WiFi-asetusportaali, jonka avulla WiFi- ja MQTT-asetukset voidaan määrittää ilman tunnusten kirjoittamista lähdekoodiin.
 
 ## Versiot
 
--   **V5 Basic** -- yksinkertainen ja helposti seurattava oppimisversio.
--   **V6 Secure** -- V5:n jatkokehitys, jossa MQTT TLS-, asetussivun ja
-    syötteiden turvallisuutta on parannettu.
+### V5 Basic
 
-> Suositus: tutustu V5:een opiskelua varten ja käytä V6:ta varsinaisessa
-> käytössä.
+V5 on helposti seurattava oppimisversio. Se on hyvä lähtökohta ESP32-, WiFi-, WebServer-, Preferences- ja MQTT-ohjelmoinnin opiskeluun.
 
-## Projektin rakenne
+### V6 Secure
 
-``` text
-SCD30-Wemos/
-├── README.md
-├── LICENSE
-├── .gitignore
-├── images/
-│   ├── scd30-wemos.jpg
-│   ├── scd30-sensor.jpg
-│   └── scd30-wemos-wiring.jpg
-├── docs/
-│   ├── version-5.md
-│   └── version-6.md
-└── examples/
-    ├── SCD30_WLAN_MQTT_v5/
-    │   └── SCD30_WLAN_MQTT_v5.ino
-    └── SCD30_WLAN_MQTT_v6/
-        └── SCD30_WLAN_MQTT_v6.ino
+V6 perustuu suoraan vastaavaan V5-versioon, mutta korjaa keskeisiä tietoturvaongelmia.
+
+V6-versiot:
+
+```text
+examples/
+├── SCD30_WEMOS-D1R32-ESP32_WLAN_MQTT_v6/
+│   └── SCD30_WEMOS-D1R32-ESP32_WLAN_MQTT_v6.ino
+│
+└── SCD30_XIAO-ESP32-S3_WLAN_MQTT_WIFI_v6/
+    └── SCD30_XIAO-ESP32-S3_WLAN_MQTT_WIFI_v6.ino
 ```
 
-# Laitteisto
+---
 
--   **Wemos D1 R32 / ESP32**
--   **Sensirion SCD30**
--   USB-kaapeli
--   WiFi-verkko
--   MQTT-broker
+# Mikrokontrollerit
 
-## Kytkentä
+| Ominaisuus | Wemos D1 R32 | XIAO ESP32-S3 |
+|---|---|---|
+| MCU | ESP32 | ESP32-S3 |
+| SCD30 I²C SDA | GPIO21 | GPIO5 |
+| SCD30 I²C SCL | GPIO22 | GPIO6 |
+| WiFi | 2,4 GHz | 2,4 GHz |
+| MQTT | Kyllä | Kyllä |
+| WiFi-asetusportaali | Kyllä | Kyllä |
+| V6 TLS | Kyllä | Kyllä |
 
-Wemos D1 R32:n I²C-liitännät ovat SDA = GPIO21 ja SCL = GPIO22.
+Sama SCD30-koodi on siis sovitettu kahdelle eri ESP32-mikrokontrollerille. Käytännössä tärkein alustakohtainen ero tässä projektissa on I²C-pinnien määritys.
 
-  SCD30   Wemos D1 R32   Tarkoitus
-  ------- -------------- ---------------
-  VIN     3V3            Käyttöjännite
-  GND     GND            Maa
-  SDA     SDA / GPIO21   I²C-data
-  SCL     SCL / GPIO22   I²C-kello
+---
 
-Sensirionin SCD30:n käyttöjännite on 3,3--5,5 V ja anturi tukee I²C:tä.
-Tässä projektissa käytetään ESP32:n 3,3 V -logiikkaa.
+# Kytkentä
 
-**Älä vaihda SDA- ja SCL-johtoja keskenään.**
+## Wemos D1 R32
 
-## Kuvat
+| SCD30 | Wemos D1 R32 | Tarkoitus |
+|---|---|---|
+| VIN | 3V3 | Käyttöjännite |
+| GND | GND | Maa |
+| SDA | GPIO21 / SDA | I²C-data |
+| SCL | GPIO22 / SCL | I²C-kello |
 
-### Koko laitteisto
+## XIAO ESP32-S3
 
-![Wemos D1 R32 ja Sensirion SCD30](images/scd30-wemos.jpg)
+| SCD30 | XIAO ESP32-S3 | Tarkoitus |
+|---|---|---|
+| VIN | 3V3 | Käyttöjännite |
+| GND | GND | Maa |
+| SDA | GPIO5 | I²C-data |
+| SCL | GPIO6 | I²C-kello |
 
-*Wemos D1 R32 ja Sensirion SCD30 projektin kokonaisuutena.*
+SCD30:n I²C-osoite on:
 
-### SCD30-anturin liitännät
+```text
+0x61
+```
 
-![Sensirion SCD30 -anturin liitännät](images/scd30-sensor.jpg)
+---
 
-*SCD30-anturin liitännät lähikuvassa.*
+# Kuvat
 
-### Käytännön kytkentä
+Repositoryn `images`-kansiossa on tällä hetkellä:
 
-![Wemos D1 R32 ja SCD30 kytkettynä](images/scd30-wemos-wiring.jpg)
+- `scd30-wemos.jpg`
+- `scd30-sensor.jpg`
+- `scd30-wemos-wiring.jpg`
+- `scd30-speedstudio-1.jpg`
+- `scd30-speedstudio-2.jpg`
 
-*Wemos D1 R32 ja SCD30 käytännön kytkennässä.*
+# Kuvat
 
-# Ohjelmisto
+## Koko laitteisto
 
-Ohjelmointi tehdään Arduino IDE:llä.
+![Wemos D1 R32 ja SCD30](images/scd30-wemos.jpg)
 
-Tarvitaan: - Arduino IDE - ESP32-korttipaketti - Adafruit SCD30
--kirjasto - PubSubClient-kirjasto
+## SCD30-anturi
 
-V6 käyttää lisäksi `WiFiClientSecure`, `time`, `Preferences`,
-`WebServer` ja `DNSServer` -toimintoja.
+![SCD30-anturi](images/scd30-sensor.jpg)
 
-# V5 Basic
+## Käytännön kytkentä
 
-V5 on projektin helposti seurattava oppimisversio.
+![SCD30 ja Wemos](images/scd30-wemos-wiring.jpg)
 
-Se opettaa: - ESP32:n ohjelmointia - WiFi-yhteyttä - MQTT:tä -
-WebServeriä - Preferences/NVS-muistia - WiFi-asetusportaalin toimintaa
+## SCD30-anturi – SpeedStudio
 
-[V5-koodi](examples/SCD30_WLAN_MQTT_v5/SCD30_WLAN_MQTT_v5.ino)
+![SCD30-anturi SpeedStudio 1](images/scd30-speedstudio-1.jpg)
 
-### V5:n toiminta
+![SCD30-anturi SpeedStudio 2](images/scd30-speedstudio-2.jpg)
 
-1.  ESP32 käynnistyy.
-2.  Tallennetut WiFi- ja MQTT-asetukset luetaan.
-3.  WiFi-yhteys muodostetaan.
-4.  SCD30:n mittaukset luetaan.
-5.  MQTT-yhteys muodostetaan.
-6.  Mittaustiedot julkaistaan MQTT-brokerille.
-7.  Tarvittaessa WiFi-asetusportaali voidaan käynnistää.
 
-### V5:n tietoturva
+## SCD30-anturi
 
-V5 on oppimisversio, ei tuotantotason tietoturvaratkaisu.
+![SCD30-anturi](images/scd30-sensor.jpg)
 
-Erityisesti MQTT TLS -yhteydessä käytetään `setInsecure()`-toimintoa,
-jolloin palvelimen sertifikaattia ei varmenneta kuten V6:ssa.
+## Käytännön kytkentä
 
-# V6 Secure
+![SCD30 ja Wemos](images/scd30-wemos-wiring.jpg)
 
-V6 on V5:n tietoturvallisempi jatkokehitys.
+---
 
-[V6-koodi](examples/SCD30_WLAN_MQTT_v6/SCD30_WLAN_MQTT_v6.ino)
+# V5 → V6
 
-## V6:n tärkeimmät parannukset
+V6:n lähtökohtana ovat GitHubissa olevat:
 
-### MQTT TLS ja CA-varmenne
+- `SCD30_WEMOS-D1R32-ESP32_WLAN_MQTT_v5.ino`
+- `SCD30_XIAO-ESP32-S3_WLAN_MQTT_WIFI_v5.ino`
+
+Molemmissa V5-ohjelmissa on sama perusrakenne. Wemos käyttää:
+
+```cpp
+Wire.begin(21, 22);
+```
+
+ja XIAO ESP32-S3:
+
+```cpp
+Wire.begin(5, 6);
+```
+
+Muu WiFi-, MQTT-, WebServer- ja SCD30-toiminta on rakennettu samalla periaatteella.
+
+---
+
+# V6:n tietoturvaparannukset
+
+## 1. MQTT TLS -varmenteen tarkistus
 
 V5 käyttää:
 
-``` cpp
-setInsecure();
+```cpp
+wifiClient.setInsecure();
 ```
 
-V6 käyttää CA-varmennetta:
+Tämä tarkoittaa, ettei MQTT-palvelimen TLS-varmennetta tarkisteta.
 
-``` cpp
+V6 käyttää:
+
+```cpp
 wifiClient.setCACert(ROOT_CA);
 ```
 
-Nykyinen V6 käyttää **ISRG Root X1** -juurivarmennetta HiveMQ Cloudin
-Let's Encrypt -sertifikaattiketjua varten.
+V6:ssa on mukana **ISRG Root X1** -juurivarmenne Let's Encrypt -sertifikaattiketjuja varten.
 
-Jos käytät muuta MQTT-brokeria, tarkista sen sertifikaattiketju ja
-tarvittaessa vaihda CA-varmenne.
+Let's Encrypt ylläpitää ajantasaista tietoa ISRG Root X1 -juurivarmenteesta omalla sertifikaattisivullaan. citeturn4search0turn4search1
 
-### NTP-aika
+Jos käytät muuta MQTT-brokeria tai muuta CA:ta, vaihda `ROOT_CA` vastaamaan brokerin sertifikaattiketjua.
 
-V6 synkronoi kellonajan NTP-palvelimelta ennen TLS-yhteyden
-muodostamista. Luotettava kellonaika tarvitaan TLS-varmenteen
-tarkistamiseen.
+> **Älä muuta V6:ssa `setCACert()`-kutsua takaisin `setInsecure()`-kutsuksi, jos tavoitteena on TLS-varmenteen oikea tarkistus.**
 
-### Asetusportaalin rajoittaminen
+## 2. NTP-aika
 
-Asetusportaali on käytettävissä vain laitteen asetustilassa. Normaalissa
-WiFi-tilassa asetuksia ei voi muuttaa.
+Tässä V6-versiossa TLS-varmennetta ei ohiteta `setInsecure()`-ratkaisulla.
 
-### Asetustoimintojen token
+Huomio: ESP32:n TLS-varmenteen tarkistukseen tarvitaan oikea kellonaika. Jos käytössä oleva ESP32-ympäristö ei ole vielä synkronoinut aikaa ennen TLS-yhteyttä, yhteyden muodostaminen voi epäonnistua.
 
-V6 käyttää asetustoiminnoissa tokenia. Se tarkistetaan esimerkiksi
-`/save`- ja `/mqtt-test`-pyynnöissä.
+Jos käytät brokeria, joka edellyttää TLS-yhteyttä, NTP-synkronointi kannattaa varmistaa ennen MQTT-yhteyttä.
 
-Token ei ole käyttäjätunnus eikä varsinainen istuntohallinta, vaan
-lisäsuoja asetustoimintojen pyynnöille.
+## 3. Salasanoja ei palauteta HTML-lomakkeeseen
 
-### Salasanojen käsittely
+V5:ssa nykyinen salasana sijoitetaan suoraan HTML:n `value`-kenttään.
 
-V6: - ei tulosta salasanoja Serial Monitoriin - ei palauta nykyisiä
-salasanoja HTML:n `value`-kenttiin - säilyttää nykyisen salasanan, jos
-uusi salasanakenttä jätetään tyhjäksi
+V6:ssa:
 
-### HTML escaping
+```html
+<input type="password" ... value="">
+```
 
-Käyttäjän syöttämät tiedot käsitellään HTML-escapingilla ennen niiden
-lisäämistä sivulle.
+Nykyistä salasanaa ei siis lähetetä takaisin selaimelle.
 
-### Syötteiden validointi
+Jos käyttäjä jättää salasanakentän tyhjäksi, V6 säilyttää nykyisen salasanan.
 
-Palvelin tarkistaa muun muassa: - SSID:n pituuden - MQTT-palvelimen
-pituuden - portin 1--65535 - käyttäjänimen pituuden - salasanan
-pituuden - topicin pituuden
+## 4. Salasanoja ei tulosteta Serial Monitoriin
 
-### Yksilöllinen MQTT Client ID
+V6 ei tulosta tallennettua WiFi- tai MQTT-salasanaa Serial Monitoriin.
 
-Client ID muodostetaan ESP32:n MAC-osoitteesta:
+## 5. Portal token
 
-``` text
+Kun WiFi-asetusportaali käynnistyy, V6 muodostaa `esp_random()`-funktiolla satunnaisen tokenin.
+
+Token vaaditaan asetusten tallennukseen ja MQTT-yhteystestiin.
+
+## 6. Asetusten muuttaminen vain portal-tilassa
+
+V5 rekisteröi `/save`- ja `/mqtt-test`-endpointit myös normaalissa WiFi-tilassa.
+
+V6 ei rekisteröi näitä endpointteja normaalissa STA-tilassa.
+
+Asetusten muuttaminen tapahtuu siis vain WiFi-asetusportaalissa.
+
+## 7. Satunnainen AP-salasana
+
+V6 muodostaa WiFi-asetusportaalille uuden satunnaisen AP-salasanan jokaisella portal-tilan käynnistyskerralla.
+
+Salasana muodostetaan `esp_random()`-arvoista.
+
+Salasana tulostetaan Serial Monitoriin:
+
+```text
+AP name: SCD30-Setup-XXXXXX
+AP password: XXXXXXXXXXXXXXXX
+```
+
+## 8. HTML escaping
+
+Käyttäjän syöttämät tiedot käsitellään `htmlEscape()`-funktiolla ennen niiden lisäämistä HTML-sivulle.
+
+Tämä estää esimerkiksi `<`, `>`, `"` ja `'` -merkkien päätymisen suoraan HTML-rakenteeseen.
+
+## 9. Syötteiden validointi
+
+V6 tarkistaa palvelinpuolella muun muassa:
+
+- SSID:n enimmäispituuden
+- WiFi-salasanan enimmäispituuden
+- MQTT-palvelimen enimmäispituuden
+- MQTT-käyttäjänimen enimmäispituuden
+- MQTT-salasanan enimmäispituuden
+- MQTT-topicin enimmäispituuden
+- MQTT-portin alueen 1–65535
+- pakolliset kentät
+
+## 10. Yksilöllinen MQTT Client ID
+
+V5 käyttää kaikille laitteille samaa Client ID:tä:
+
+```text
+ESP32-SCD30
+```
+
+V6 muodostaa Client ID:n laitteen MAC-osoitteen perusteella:
+
+```text
 ESP32-SCD30-A1B2C3D4E5F6
 ```
 
-### HTTP security headers
+Tämä on tärkeää, jos samassa MQTT-brokerissa käytetään useita SCD30-laitteita.
 
-V6 käyttää muun muassa: - `Cache-Control: no-store` -
-`Pragma: no-cache` - `X-Content-Type-Options: nosniff` -
-`X-Frame-Options: DENY` - `Referrer-Policy: no-referrer` -
-`Content-Security-Policy`
+## 11. HTTP security headers
+
+V6 lisää HTTP-vastauksiin muun muassa:
+
+```text
+Cache-Control: no-store
+Pragma: no-cache
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: no-referrer
+Content-Security-Policy
+```
+
+---
 
 # V5 ja V6
 
-  Ominaisuus                                    V5 Basic    V6 Secure
-  -------------------------------------------- ----------- -----------
-  SCD30                                            ✅          ✅
-  WiFi                                             ✅          ✅
-  WiFi-asetusportaali                              ✅          ✅
-  MQTT                                             ✅          ✅
-  MQTT TLS                                         ⚠️          ✅
-  TLS-varmenteen tarkistus                         ❌          ✅
-  NTP-ajan synkronointi                            ❌          ✅
-  Asetusportaalin rajoitus                         ❌          ✅
-  Asetustoimintojen token                          ❌          ✅
-  Salasanojen palauttaminen HTML:ään               ⚠️          ❌
-  Salasanojen tulostaminen Serial Monitoriin       ⚠️          ❌
-  HTML escaping                                    ❌          ✅
-  Syötteiden validointi                         Perustaso      ✅
-  Yksilöllinen MQTT Client ID                      ❌          ✅
-  HTTP security headers                            ❌          ✅
+| Ominaisuus | V5 | V6 |
+|---|:---:|:---:|
+| SCD30 | ✅ | ✅ |
+| WiFi | ✅ | ✅ |
+| WiFi-asetusportaali | ✅ | ✅ |
+| MQTT | ✅ | ✅ |
+| MQTT-yhteystesti | ✅ | ✅ |
+| MQTT TLS | ⚠️ | ✅ |
+| TLS-varmenteen tarkistus | ❌ | ✅ |
+| Salasanojen palauttaminen HTML:ään | ⚠️ | ❌ |
+| Salasanojen tulostaminen Serial Monitoriin | ⚠️ | ❌ |
+| Portal token | ❌ | ✅ |
+| Asetusendpointit vain portal-tilassa | ❌ | ✅ |
+| Satunnainen AP-salasana | ❌ | ✅ |
+| HTML escaping | ❌ | ✅ |
+| Syötteiden validointi | Perustaso | ✅ |
+| Yksilöllinen MQTT Client ID | ❌ | ✅ |
+| HTTP security headers | ❌ | ✅ |
+| Boot count | ✅ | ✅ |
+| Reset reason | ✅ | ✅ |
+| Device Information | ✅ | ✅ |
+| Uptime | – | ✅ |
 
-# WiFi-asetusportaali
-
-Jos toimivaa WiFi-asetusta ei ole tallennettu, ESP32 käynnistää oman
-asetustilan.
-
-## V5
-
-Asetusverkon nimi:
-
-``` text
-SCD30-Setup
-```
-
-V5:n oletussalasana on tarkoitettu oppimis- ja testikäyttöön. Älä käytä
-oletussalasanaa sellaisenaan tuotantoympäristössä.
-
-## V6
-
-V6 muodostaa laitteen MAC-osoitteeseen perustuvan verkon nimen:
-
-``` text
-SCD30-Setup-XXXXXXXX
-```
-
-Myös AP-salasana muodostetaan MAC-osoitteesta.
-
-Tämä on parempi kuin kaikille laitteille yhteinen oletussalasana, mutta
-salasana ei ole kryptografisesti satunnainen. V7:ssä tämä voidaan
-korvata aidosti satunnaisella salasanalla.
+---
 
 # MQTT
 
-Mittaustiedot julkaistaan JSON-muodossa.
+Molemmat mikrokontrolleriversiot lähettävät saman JSON-rakenteen:
 
-``` json
+```json
 {
   "co2": 561,
   "temperature": 27.68,
@@ -259,72 +314,138 @@ Mittaustiedot julkaistaan JSON-muodossa.
 }
 ```
 
-  Kenttä          Selitys
-  --------------- ------------------------
-  `co2`           CO₂-pitoisuus ppm
-  `temperature`   lämpötila °C
-  `humidity`      suhteellinen kosteus %
+| Kenttä | Selitys |
+|---|---|
+| `co2` | CO₂-pitoisuus ppm |
+| `temperature` | lämpötila °C |
+| `humidity` | suhteellinen kosteus % |
 
-MQTT-topic määritetään asetussivulla.
+Oletustopic:
 
-**Älä koskaan lisää omia WiFi- tai MQTT-tunnuksiasi GitHubiin.**
+```text
+scd30/data
+```
 
-# Firmwareen lataaminen ja PermissionError
+Oletusportti:
 
-## ⚠️ Windowsissa esiintyvä PermissionError
+```text
+8883
+```
 
-Firmwarea ladattaessa voi esiintyä esimerkiksi:
+---
 
-``` text
+# WiFi-asetusportaali
+
+Jos WiFi-asetuksia ei ole tallennettu tai WiFi-yhteyden muodostaminen epäonnistuu, laite käynnistää oman WiFi-asetusverkon.
+
+V6:n verkko on muotoa:
+
+```text
+SCD30-Setup-XXXXXX
+```
+
+Salasana muodostetaan satunnaisesti laitteen käynnistyessä.
+
+Asetustilassa käyttäjä voi määrittää:
+
+- WiFi SSID:n
+- WiFi-salasanan
+- MQTT-palvelimen
+- MQTT-portin
+- MQTT-käyttäjänimen
+- MQTT-salasanan
+- MQTT-topicin
+
+Asetussivulla voidaan myös testata MQTT-yhteys ennen asetusten tallentamista.
+
+---
+
+# Device Information
+
+V5:ssä jo oleva Device Information -sivu on säilytetty V6:ssa.
+
+Sivulla näytetään muun muassa:
+
+- ESP32-malli
+- chip revision
+- CPU-ytimien määrä
+- CPU-taajuus
+- flash-muistin koko
+- vapaa heap-muisti
+- sketchin koko
+- vapaa sketch-tila
+- Arduino Core -versio
+- ESP-IDF-versio
+- MAC-osoite
+- IP-osoite
+- gateway
+- DNS
+- RSSI
+- boot count
+- reset reason
+- reset reasonin numeerinen arvo
+- laitteen uptime
+- SCD30:n I²C-osoite
+
+Reset reason näytetään esimerkiksi muodossa:
+
+```text
+Software reset (3)
+```
+
+---
+
+# PermissionError Windowsissa
+
+ESP32-firmwarea ladattaessa voi esiintyä:
+
+```text
 PermissionError(13, 'Access is denied.')
 ```
 
 tai:
 
-``` text
+```text
 SerialException: could not open port 'COMx'
 PermissionError(13, 'Access is denied.')
 ```
 
 Tämä ei välttämättä tarkoita, että Arduino-koodissa on virhe.
 
-Ongelma voi liittyä: - Windowsin COM-porttiin - USB-sarjaportin
-ajuriin - toisen ohjelman käyttämään COM-porttiin - USB-kaapeliin tai
--porttiin - `esptool`-ohjelmaan - ESP32-korttipaketin ja
-`esptool`-version yhteensopivuuteen
+Ongelma voi liittyä esimerkiksi:
 
-### Espressifin issue #682
+- Windowsin COM-porttiin
+- USB-sarjaportin ajuriin
+- toisen ohjelman käyttämään COM-porttiin
+- USB-kaapeliin
+- USB-porttiin
+- `esptool`-ohjelmaan
+- ESP32-korttipakettiin
 
-Espressifin virallisessa `esptool`-projektissa on dokumentoitu vastaava
-Windows/COM-portti/`PermissionError(13)` -ongelma:
+## Espressif esptool issue #682
 
-**Espressif esptool -- PermissionError(13, 'Access is denied.') #682**
+Espressifin `esptool`-projektissa on dokumentoitu vastaava Windows/COM-portti/`PermissionError(13)` -ongelma:
 
-https://github.com/espressif/esptool/issues/682
+[Espressif esptool – PermissionError(13, 'Access is denied.') #682](https://github.com/espressif/esptool/issues/682)
 
-> Issue #682 koskee alkuperäisesti ESP8266/Windows/esptool-ympäristöä.
-> Se ei siis ole juuri Wemos D1 R32:n nykyinen korjausohje, mutta se on
-> tärkeä viite samantyyppiseen `esptool`- ja COM-porttiongelmaan.
+Issue #682 liittyy alkuperäisesti ESP8266/Windows/esptool-ympäristöön, mutta se on hyödyllinen viite samantyyppisen COM-porttiongelman selvittämiseen.
 
-### Kokeile seuraavia
+### Kokeile
 
-1.  Sulje Arduino IDE.
-2.  Irrota Wemos USB-kaapelista.
-3.  Varmista, ettei toinen ohjelma käytä COM-porttia.
-4.  Liitä Wemos uudelleen.
-5.  Tarkista COM-portti Windowsin Laitehallinnasta.
-6.  Käynnistä Arduino IDE uudelleen.
-7.  Kokeile toista USB-porttia.
-8.  Tarkista USB-sarjaportin ajuri.
-9.  Kokeile toista USB-kaapelia.
-10. Kokeile upload-nopeudeksi `115200`.
+1. Sulje Arduino IDE.
+2. Irrota kortti USB-kaapelista.
+3. Varmista, ettei toinen ohjelma käytä COM-porttia.
+4. Liitä kortti uudelleen.
+5. Tarkista COM-portti Windowsin Laitehallinnasta.
+6. Käynnistä Arduino IDE uudelleen.
+7. Kokeile toista USB-porttia.
+8. Tarkista USB-sarjaportin ajuri.
+9. Kokeile toista USB-kaapelia.
+10. Kokeile upload-nopeudeksi esimerkiksi `115200`.
 
-### Tärkeä oppi
+### Aloittelijalle tärkeä ero
 
-Jos ohjelma kääntyy onnistuneesti mutta firmwarea ei saada ladattua, älä
-oleta heti, että ohjelmakoodissa on virhe.
-
-``` text
+```text
 Arduino-koodi
       │
       ▼
@@ -346,121 +467,97 @@ Arduino-koodi
               → latausympäristön ongelma
 ```
 
-**Tämä ero on erityisen tärkeä aloittelijalle.**
+Jos ohjelma kääntyy onnistuneesti, älä muuta toimivaa Arduino-koodia vain siksi, että firmwareen lataaminen epäonnistuu.
 
-# Tietoturva ja GitHub
+---
 
-Lähdekoodissa ei saa olla oikeita: - WiFi-salasanoja - MQTT-salasanoja -
-API-avaimia - muita salaisia tunnuksia
+# Arduino IDE
 
-Jos oikea salasana päätyy GitHubiin:
+Asenna:
 
-1.  vaihda salasana välittömästi
-2.  poista salaisuus koodista
-3.  tarkista Git-historia
-4.  poista salaisuus tarvittaessa myös historiasta
+- USB-serial versio CH340-3.4.2014.8
+- Arduino IDE
+- ESP32-korttipaketti
+- Adafruit SCD30
+- PubSubClient
 
-Salaisuuden poistaminen nykyisestä tiedostosta ei välttämättä poista
-sitä vanhoista Git-commiteista.
+## Wemos D1 R32
 
-# Asennus
+Valitse esimerkiksi:
 
-## 1. Arduino IDE
-
-Asenna Arduino IDE ja ESP32-korttipaketti.
-
-## 2. Kortti
-
-Valitse Wemos D1 R32:lle esimerkiksi:
-
-``` text
+```text
 ESP32 Dev Module
 ```
 
-## 3. Kirjastot
+SCD30:
 
-Asenna Library Managerista:
-
-``` text
-Adafruit SCD30
-PubSubClient
+```text
+Wire.begin(21, 22);
 ```
 
-## 4. Kytkentä
+## XIAO ESP32-S3
 
-Kytke SCD30 yllä olevan kytkentätaulukon mukaisesti.
+Valitse Arduino IDE:ssä XIAO ESP32-S3:n mukainen kortti.
 
-## 5. Valitse versio
+SCD30:
 
-Opiskeluun:
-
-``` text
-examples/SCD30_WLAN_MQTT_v5/
+```text
+Wire.begin(5, 6);
 ```
 
-Normaaliin käyttöön:
+---
 
-``` text
-examples/SCD30_WLAN_MQTT_v6/
-```
+# Suositeltu oppimispolku
 
-## 6. Lataa firmware
+1. Aloita Wemos D1 R32:n V5-versiosta.
+2. Opettele SCD30:n I²C-kommunikaatio.
+3. Opettele ESP32:n WiFi.
+4. Opettele WebServer.
+5. Opettele Preferences/NVS.
+6. Opettele MQTT.
+7. Tutki V5:n tietoturvarajoituksia.
+8. Vertaa Wemos V5 → V6.
+9. Vertaa XIAO V5 → V6.
+10. Tutki, mitkä osat ovat alustariippumattomia ja mitkä liittyvät I²C-pinneihin.
+11. Testaa MQTT TLS -yhteys.
+12. Kehitä oma V7.
 
-Käännä ja lataa ohjelma Wemos D1 R32:lle.
+Tämä tekee projektista hyvän harjoituksen myös ohjelmakoodin uudelleenkäytöstä: sama sovelluslogiikka voidaan siirtää toiselle ESP32-alustalle vaihtamalla vain tarvittavat laitteistokohtaiset osat.
 
-Jos lataus epäonnistuu `PermissionError`-virheeseen, tutustu yllä
-olevaan PermissionError-osioon.
+---
 
-# Käyttöönotto
+# Tietoturvahuomio
 
-1.  Käynnistä ESP32.
-2.  Jos WiFi-asetusta ei ole, yhdistä ESP32:n asetustukiasemaan.
-3.  Avaa asetussivu.
-4.  Syötä WiFi SSID ja salasana.
-5.  Syötä MQTT-palvelin, portti, käyttäjänimi, salasana ja topic.
-6.  Tallenna asetukset.
-7.  ESP32 käynnistyy uudelleen ja muodostaa yhteydet.
+V6 on selvästi V5:tä turvallisempi, mutta sitä ei ole suunniteltu suoraan Internetiin altistettavaksi Web-palvelimeksi.
 
-# Oppimispolku
+Rajoituksia:
 
-Suositeltu etenemisjärjestys:
+- WiFi-asetusportaali käyttää HTTP:tä, ei HTTPS:ää.
+- MQTT TLS suojaa MQTT-yhteyden, mutta ei paikallista HTTP-asetusliikennettä.
+- AP-salasana tulostetaan Serial Monitoriin asetustilan aikana.
+- ESP32:n resurssit rajoittavat WebServerin ominaisuuksia.
+- Laitetta ei tule asettaa suoraan Internetiin ilman erillistä suojausta.
 
-1.  Aloita V5:stä.
-2.  Opettele WiFi, WebServer, Preferences ja MQTT.
-3.  Testaa SCD30:n JSON-viestit MQTT-brokerissa.
-4.  Tutki V5:n tietoturvarajoituksia.
-5.  Vertaa V5- ja V6-koodeja.
-6.  Tutki TLS-varmenteen tarkistusta, NTP-aikaa, tokenia, HTML
-    escapingia ja syötteiden validointia.
-7.  Kehitä oma V7.
+V6 on tarkoitettu ensisijaisesti **luotettuun paikalliseen IoT-verkkoon**.
 
-# Tunnetut rajoitukset
-
-V6 on V5:tä turvallisempi, mutta sitä ei ole tarkoitettu Internetiin
-suoraan altistettavaksi Web-palvelimeksi.
-
-Rajoituksia: - WiFi-asetusportaali käyttää HTTP:tä, ei HTTPS:ää. - V6:n
-AP-salasana perustuu MAC-osoitteeseen. - ESP32:n resurssit rajoittavat
-Web-palvelimen ominaisuuksia. - MQTT TLS suojaa MQTT-yhteyden, mutta ei
-paikallista HTTP-asetusliikennettä. - Laitetta ei tule asettaa suoraan
-Internetiin ilman erillistä suojausta.
-
-V6 on tarkoitettu ensisijaisesti **luotettuun paikalliseen
-IoT-verkkoon**.
+---
 
 # Tuleva V7
 
 Mahdollisia jatkokehityskohteita:
 
--   aidosti satunnaisesti luotu AP-salasana
--   AP-salasanan turvallisempi tallennus
--   OTA-päivitys
--   MQTT Last Will
--   online/offline-tila
--   parempi virheenkäsittely
--   sensorin tilan valvonta
--   Web-käyttöliittymän kehittäminen
--   MQTT-yhteyden uudelleenyhdistämisen parantaminen
+- HTTPS-asetusportaali
+- OTA-päivitys
+- MQTT Last Will
+- online/offline-tila
+- parempi virheenkäsittely
+- sensorin tilan valvonta
+- sertifikaatin vaihtaminen asetussivulta
+- sertifikaattien automaattinen päivitys
+- salaisuuksien parempi suojaus NVS-muistissa
+- yhteinen alustariippumaton kirjasto Wemos- ja XIAO-versioille
+
+---
 
 # Lisenssi
 
